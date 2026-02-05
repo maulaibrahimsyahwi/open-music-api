@@ -32,6 +32,14 @@ const collaborations = require("./api/collaborations");
 const CollaborationsService = require("./services/postgres/CollaborationsService");
 const CollaborationsValidator = require("./validator/collaborations");
 
+// validators
+const AlbumsValidator = require("./validator/albums");
+const SongsValidator = require("./validator/songs");
+const UsersValidator = require("./validator/users");
+const AuthenticationsValidator = require("./validator/authentications");
+const PlaylistsValidator = require("./validator/playlists");
+const CollaborationsValidator = require("./validator/collaborations");
+
 const ClientError = require("./exceptions/ClientError");
 
 const init = async () => {
