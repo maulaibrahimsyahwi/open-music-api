@@ -2,32 +2,38 @@ require("dotenv").config();
 
 const Hapi = require("@hapi/hapi");
 const Jwt = require("@hapi/jwt");
+const ClientError = require("./exceptions/ClientError");
 
+// Albums
 const albums = require("./api/albums");
-const songs = require("./api/songs");
 const AlbumsService = require("./services/postgres/AlbumsService");
-const SongsService = require("./services/postgres/SongsService");
 const AlbumsValidator = require("./validator/albums");
+
+// Songs
+const songs = require("./api/songs");
+const SongsService = require("./services/postgres/SongsService");
 const SongsValidator = require("./validator/songs");
 
+// Users
 const users = require("./api/users");
 const UsersService = require("./services/postgres/UsersService");
 const UsersValidator = require("./validator/users");
 
+// Authentications
 const authentications = require("./api/authentications");
 const AuthenticationsService = require("./services/postgres/AuthenticationsService");
 const TokenManager = require("./tokenize/TokenManager");
 const AuthenticationsValidator = require("./validator/authentications");
 
+// Playlists
 const playlists = require("./api/playlists");
 const PlaylistsService = require("./services/postgres/PlaylistsService");
 const PlaylistsValidator = require("./validator/playlists");
 
+// Collaborations
 const collaborations = require("./api/collaborations");
 const CollaborationsService = require("./services/postgres/CollaborationsService");
 const CollaborationsValidator = require("./validator/collaborations");
-
-const ClientError = require("./exceptions/ClientError");
 
 const init = async () => {
   const collaborationsService = new CollaborationsService();
