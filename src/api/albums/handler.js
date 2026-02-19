@@ -9,6 +9,10 @@ class AlbumsHandler {
     this.putAlbumByIdHandler = this.putAlbumByIdHandler.bind(this);
     this.deleteAlbumByIdHandler = this.deleteAlbumByIdHandler.bind(this);
     this.postUploadCoverHandler = this.postUploadCoverHandler.bind(this);
+
+    this.postAlbumLikeHandler = this.postAlbumLikeHandler.bind(this);
+    this.getAlbumLikesHandler = this.getAlbumLikesHandler.bind(this);
+    this.deleteAlbumLikeHandler = this.deleteAlbumLikeHandler.bind(this);
   }
 
   async postAlbumHandler(request, h) {
@@ -77,6 +81,46 @@ class AlbumsHandler {
     });
     response.code(201);
     return response;
+  }
+
+  async postAlbumLikeHandler(request, h) {
+    const { id: albumId } = request.params;
+    const { id: credentialId } = request.auth.credentials;
+
+    await this._service.addAlbumLike(credentialId, albumId);
+
+    const response = h.response({
+      status: "success",
+      message: "Berhasil menyukai album",
+    });
+    response.code(201);
+    return response;
+  }
+
+  async getAlbumLikesHandler(request, h) {
+    const { id: albumId } = request.params;
+    const { likes, source } = await this._service.getAlbumLikes(albumId);
+
+    const response = h.response({
+      status: "success",
+      data: {
+        likes,
+      },
+    });
+    response.header("X-Data-Source", source);
+    return response;
+  }
+
+  async deleteAlbumLikeHandler(request) {
+    const { id: albumId } = request.params;
+    const { id: credentialId } = request.auth.credentials;
+
+    await this._service.deleteAlbumLike(credentialId, albumId);
+
+    return {
+      status: "success",
+      message: "Berhasil batal menyukai album",
+    };
   }
 }
 
