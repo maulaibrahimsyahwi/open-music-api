@@ -35,12 +35,25 @@ const collaborations = require("./api/collaborations");
 const CollaborationsService = require("./services/postgres/CollaborationsService");
 const CollaborationsValidator = require("./validator/collaborations");
 
+// StorageService
+const Inert = require("@hapi/inert");
+const path = require("path");
+const StorageService = require("./services/storage/StorageService");
+
+// Exports
+const _exports = require("./api/exports");
+const ProducerService = require("./services/rabbitmq/ProducerService");
+const ExportsValidator = require("./validator/exports");
+
 const init = async () => {
   const collaborationsService = new CollaborationsService();
   const albumsService = new AlbumsService();
   const songsService = new SongsService();
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
+  const storageService = new StorageService(
+    path.resolve(__dirname, "api/albums/file/images"),
+  );
   const playlistsService = new PlaylistsService(collaborationsService);
 
   const server = Hapi.server({
@@ -52,12 +65,17 @@ const init = async () => {
       },
     },
   });
-
-  await server.register([
-    {
-      plugin: Jwt,
+  server.route({
+    method: "GET",
+    path: "/upload/{param*}",
+    handler: {
+      directory: {
+        path: path.resolve(__dirname, "api/albums/file"),
+      },
     },
-  ]);
+  });
+
+  await server.register([{ plugin: Jwt }, { plugin: Inert }]);
 
   server.auth.strategy("openmusic_jwt", "jwt", {
     keys: process.env.ACCESS_TOKEN_KEY,
@@ -80,6 +98,7 @@ const init = async () => {
       plugin: albums,
       options: {
         service: albumsService,
+        storageService,
         validator: AlbumsValidator,
       },
     },
@@ -121,6 +140,14 @@ const init = async () => {
         playlistsService,
         usersService,
         validator: CollaborationsValidator,
+      },
+    },
+    {
+      plugin: _exports,
+      options: {
+        producerService: ProducerService,
+        playlistsService,
+        validator: ExportsValidator,
       },
     },
   ]);
